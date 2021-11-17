@@ -27,7 +27,7 @@ class Exporter:
             "task-received": Counter(
                 "celery_task_received",
                 "Sent when the worker receives a task.",
-                ["name", "hostname", "queue"],
+                ["name", "hostname",],
                 registry=self.registry,
             ),
             "task-started": Counter(
@@ -36,39 +36,38 @@ class Exporter:
                 [
                     "name",
                     "hostname",
-                    "queue",
                 ],
                 registry=self.registry,
             ),
             "task-succeeded": Counter(
                 "celery_task_succeeded",
                 "Sent if the task executed successfully.",
-                ["name", "hostname", "queue"],
+                ["name", "hostname",],
                 registry=self.registry,
             ),
             "task-failed": Counter(
                 "celery_task_failed",
                 "Sent if the execution of the task failed.",
-                ["name", "hostname", "queue", "exception"],
+                ["name", "hostname", "exception"],
                 registry=self.registry,
             ),
             "task-rejected": Counter(
                 "celery_task_rejected",
                 # pylint: disable=line-too-long
                 "The task was rejected by the worker, possibly to be re-queued or moved to a dead letter queue.",
-                ["name", "hostname", "queue"],
+                ["name", "hostname",],
                 registry=self.registry,
             ),
             "task-revoked": Counter(
                 "celery_task_revoked",
                 "Sent if the task has been revoked.",
-                ["name", "hostname", "queue"],
+                ["name", "hostname",],
                 registry=self.registry,
             ),
             "task-retried": Counter(
                 "celery_task_retried",
                 "Sent if the task failed, but will be retried in the future.",
-                ["name", "hostname", "queue"],
+                ["name", "hostname"],
                 registry=self.registry,
             ),
         }
@@ -101,6 +100,9 @@ class Exporter:
         if not counter:
             logger.warning("No counter matches task state='{}'", task.state)
             return
+
+        if 'queue' in event:
+            logger.debug("Event of type '%s' has queue attribute (%s)" % (event['type'], event['queue']))
 
         labels = {}
         # pylint: disable=protected-access
