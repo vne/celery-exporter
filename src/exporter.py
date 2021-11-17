@@ -49,7 +49,7 @@ class Exporter:
             "task-failed": Counter(
                 "celery_task_failed",
                 "Sent if the execution of the task failed.",
-                ["name", "hostname", "queue," "exception"],
+                ["name", "hostname", "queue", "exception"],
                 registry=self.registry,
             ),
             "task-rejected": Counter(
