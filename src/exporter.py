@@ -20,13 +20,14 @@ class Exporter:
                 [
                     "name",
                     "hostname",
+                    "queue",
                 ],
                 registry=self.registry,
             ),
             "task-received": Counter(
                 "celery_task_received",
                 "Sent when the worker receives a task.",
-                ["name", "hostname"],
+                ["name", "hostname", "queue"],
                 registry=self.registry,
             ),
             "task-started": Counter(
@@ -35,38 +36,39 @@ class Exporter:
                 [
                     "name",
                     "hostname",
+                    "queue",
                 ],
                 registry=self.registry,
             ),
             "task-succeeded": Counter(
                 "celery_task_succeeded",
                 "Sent if the task executed successfully.",
-                ["name", "hostname"],
+                ["name", "hostname", "queue"],
                 registry=self.registry,
             ),
             "task-failed": Counter(
                 "celery_task_failed",
                 "Sent if the execution of the task failed.",
-                ["name", "hostname", "exception"],
+                ["name", "hostname", "queue," "exception"],
                 registry=self.registry,
             ),
             "task-rejected": Counter(
                 "celery_task_rejected",
                 # pylint: disable=line-too-long
                 "The task was rejected by the worker, possibly to be re-queued or moved to a dead letter queue.",
-                ["name", "hostname"],
+                ["name", "hostname", "queue"],
                 registry=self.registry,
             ),
             "task-revoked": Counter(
                 "celery_task_revoked",
                 "Sent if the task has been revoked.",
-                ["name", "hostname"],
+                ["name", "hostname", "queue"],
                 registry=self.registry,
             ),
             "task-retried": Counter(
                 "celery_task_retried",
                 "Sent if the task failed, but will be retried in the future.",
-                ["name", "hostname"],
+                ["name", "hostname", "queue"],
                 registry=self.registry,
             ),
         }
@@ -103,6 +105,8 @@ class Exporter:
         labels = {}
         # pylint: disable=protected-access
         for labelname in counter._labelnames:
+            if not hasattr(task, labelname):
+                continue
             value = getattr(task, labelname)
             if labelname == "exception":
                 logger.debug(value)
